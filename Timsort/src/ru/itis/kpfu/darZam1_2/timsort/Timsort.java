@@ -27,13 +27,26 @@ public class Timsort {
         stackLen = new ArrayDeque<>();
         stackIndex = new ArrayDeque<>();
         this.minrun = this.getMinrun(array.length);
-        while(count<array.length){
+       
+ 
+    
+    }
+    
+    
+    public void sort(){
+         while(count<array.length){
             this.getRun();
         }
         while(stackLen.size()>0){
           this.canMerge();
         }
-      //  System.out.println(Arrays.toString(array));
+        System.out.println(Arrays.toString(array));
+    }
+    
+    public void random(){
+        for(int i =0 ; i<array.length;i++){
+            array[i] = (int)(Math.random()*10000);
+        }
     }
     private int getMinrun(int n){
         int r = 0;
@@ -47,23 +60,27 @@ public class Timsort {
     public void getRun(){
         int i = count;
         size = 0;
-        boolean type = false ;
-        while(array[i]>array[i+1]){
-            type = true;
-            if(i+1>array.length-2){
-                    break;
-            }
-            i++;
-            size++;
-        }
-        if(i==count){
-            while(array[i]<=array[i+1]){
-                if(i+1>array.length-2){
-                    break;
+        boolean type = false ;  
+        if((i+1)<(array.length-1)){
+            while(array[i]>array[i+1]){
+                if((i+1)>(array.length-1)){
+                       break;
                 }
+                type = true;
                 i++;
                 size++;
-            }
+            } 
+        }
+        if(i==count){
+            if((i+1)<(array.length-1)){
+                while(array[i]<=array[i+1]){
+                    if((i+1)>(array.length-1)){
+                             break;
+                    }
+                    i++;
+                    size++;
+                }
+            }    
         }
         if(type){
            int k = i;
@@ -77,9 +94,9 @@ public class Timsort {
             i = count+minrun;
             size = i > array.length? (array.length-count-1) : minrun;    
         }
-        this.insertionSort(count, size);
         stackIndex.add(count);
         stackLen.add(size);
+        this.insertionSort(count, size);
         count = i;
     }
     
@@ -96,24 +113,35 @@ public class Timsort {
      }
      
      public void canMerge(){
-         if(stackLen.size()==0){;
+         if(stackLen.size()==0){
              return;
          }
-        // System.out.println(stackLen.size());
          if(stackLen.size()>2){
             int x = stackIndex.pollFirst();
             int y = stackIndex.pollFirst();
             int z = stackIndex.pollFirst();
             int xlen = stackLen.pollFirst();
+            // System.out.println(xlen);
             int ylen = stackLen.pollFirst();
             int zlen = stackLen.pollFirst();
-            if((xlen>(ylen+zlen)) && ylen>zlen){
-               merge(x, xlen, y, ylen); 
-               stackLen.push(zlen);
-               stackIndex.push(z);
-            }else{
-               if(xlen<zlen){ merge(x, xlen, y, ylen ); stackLen.push(zlen) ; stackIndex.push(z); }
-               else{ merge(y, ylen, z , zlen);stackLen.push(xlen) ; stackIndex.push(x);}
+            if(xlen==ylen){
+                stackLen.push(zlen);
+                stackIndex.push(z);
+                merge(x, xlen, y,ylen);
+            } else{
+                if((xlen>(ylen+zlen)) && ylen>zlen){
+                   stackLen.push(zlen);
+                   stackIndex.push(z);
+                   merge(x, xlen, y, ylen); 
+
+                }else{
+                   if(xlen<=zlen){  stackLen.push(zlen) ; stackIndex.push(z); merge(x, xlen, y, ylen ); }
+                   else{ merge(y, ylen, z , zlen);  stackLen.push(xlen) ; stackIndex.push(x);
+//                            for(Object mas: stackIndex.toArray() ){
+//                                    System.out.print(mas+" ");
+//                            }
+                   }
+                }
             }
          } else{ 
              if(stackLen.size()>1){ merge(stackIndex.pollFirst(), stackLen.pollFirst(), stackIndex.pollFirst(), stackLen.pollFirst());} 
@@ -125,12 +153,18 @@ public class Timsort {
      }
      
      public void merge(int index, int length, int index1, int length1){
+        // System.out.println(index);
         int[] x = Arrays.copyOfRange(array, index,index + length);
         int number = 0;
         int number1 = 0;
         int ind =index;
         int b = 0;
         int c= index1;
+//          for(Object mas: stackIndex.toArray() ){
+//             System.out.print("bef"+mas+" ");
+//         }
+//         
+//         System.out.println("");
          for(int i = 0 ; i<length+length1; i++){
             if(b<x.length && c<index1+length1){
                 if(x[b]>array[c]){
@@ -141,6 +175,7 @@ public class Timsort {
                     number1++;
                 }
             }else{
+              //  System.out.println(index+ "i"+i+" "+ (length1+length));
                 array[ind++] = c < index1+length1? array[c++] : x[b++];  
             }
             if(number-number1>6){
@@ -150,7 +185,6 @@ public class Timsort {
                 number1=0;
                 i= i+(z-c);
                 ind=ind+z-c;
-                c=z;
             } else{
                 if(number1-number>6){
                     int z = binarysearch(b+index, length-b, array[c]);
@@ -165,6 +199,14 @@ public class Timsort {
         }
          stackLen.push(length1+length);
          stackIndex.push(index);
+//         for(Object mas: stackIndex.toArray() ){
+//             System.out.print(mas+" ");
+//         }
+//         System.out.println("");
+//         for(Object mas: stackLen.toArray() ){
+//             System.out.print(mas+" ");
+//         }
+//         System.out.println("");
      }
      
      public int binarysearch(int first, int length, int max){
@@ -182,12 +224,32 @@ public class Timsort {
 
     
     public static void main(String[] args) {
-        int[] z = new int[1000000];
-        for(int i =0 ; i<z.length;i++){
-            z[i] = (int)(Math.random()*10000);
+        
+        
+
+        
+        int sum =0;
+     //   CSVWriter cs = new CSVWriter();
+//        List ar = new ArrayList();
+        for(int i =99; i<100; i++){
+//            long st = System.currentTimeMillis();
+            int[] z = new int[1000000];
+        for(int j =0 ; j<z.length;j++){
+             z[j] = (int)(Math.random()*10000);
+         }
+    //   Arrays.sort(z);
+           Timsort tms = new Timsort(z);
+//            tms.random();
+            tms.sort();
+//            long finish = System.currentTimeMillis();
+//            sum += st-finish;
+//          //  System.out.println((double)(finish-st)/1000.000000);
+//            ar.add((double)(finish-st)/1000.000000);
         }
-       Timsort tms = new Timsort(z);
-       // Arrays.sort(z);
+      //  cs.writeArray(ar.toArray());
+     //   System.out.println((double)sum/100.0000);
+//        long finish = System.currentTimeMillis();
+//        System.out.println((double)(finish-st)/1000.000000);
     }
     
     
