@@ -6,8 +6,10 @@
 package ru.itis.kpfu.darZam1_2.timsort;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.List;
 
 /**
  *
@@ -27,7 +29,7 @@ public class Timsort {
         stackLen = new ArrayDeque<>();
         stackIndex = new ArrayDeque<>();
         this.minrun = this.getMinrun(array.length);
-       
+        
  
     
     }
@@ -37,10 +39,12 @@ public class Timsort {
          while(count<array.length){
             this.getRun();
         }
+       // System.out.println(Arrays.toString(array));
         while(stackLen.size()>0){
           this.canMerge();
+           //System.out.println(stackLen.size());
         }
-        System.out.println(Arrays.toString(array));
+      //  System.out.println(Arrays.toString(array));
     }
     
     public void random(){
@@ -112,6 +116,14 @@ public class Timsort {
         }
      }
      
+     public boolean hoIsBigger(int length1, int length2){
+         if(length1-length2<minrun){
+             return true;
+         }else{
+             return false;
+         }
+     }
+     
      public void canMerge(){
          if(stackLen.size()==0){
              return;
@@ -121,84 +133,147 @@ public class Timsort {
             int y = stackIndex.pollFirst();
             int z = stackIndex.pollFirst();
             int xlen = stackLen.pollFirst();
-            // System.out.println(xlen);
             int ylen = stackLen.pollFirst();
             int zlen = stackLen.pollFirst();
-            if(xlen==ylen){
+            if(this.hoIsBigger(xlen, ylen)){
                 stackLen.push(zlen);
                 stackIndex.push(z);
                 merge(x, xlen, y,ylen);
             } else{
-                if((xlen>(ylen+zlen)) && ylen>zlen){
+                if((xlen<(ylen+zlen)) && ylen>zlen){
                    stackLen.push(zlen);
                    stackIndex.push(z);
                    merge(x, xlen, y, ylen); 
 
                 }else{
                    if(xlen<=zlen){  stackLen.push(zlen) ; stackIndex.push(z); merge(x, xlen, y, ylen ); }
-                   else{ merge(y, ylen, z , zlen);  stackLen.push(xlen) ; stackIndex.push(x);
-//                            for(Object mas: stackIndex.toArray() ){
-//                                    System.out.print(mas+" ");
-//                            }
+                   else{
+                       List index =new ArrayList();
+                       index.addAll(stackIndex);
+                       List length = new ArrayList();
+                       length.addAll(stackLen);
+                       stackLen.clear();
+                       stackIndex.clear();
+                       boolean end = false;
+                       boolean isMerge =false;
+                       while(!isMerge){
+                            if(this.hoIsBigger(ylen, zlen)){ 
+                                merge(y, ylen, z , zlen);
+                                stackLen.pollFirst();
+                                stackIndex.pollFirst();
+                                stackLen.addLast(ylen+zlen);
+                                
+                                stackIndex.addLast(y);
+                                stackLen.addAll(length);
+                                stackIndex.addAll(index);
+                                
+                                isMerge = true;
+                            }else{   
+                               stackIndex.addLast(y);
+                               stackLen.addLast(ylen);
+                               
+                               y = z;
+                               ylen = zlen;
+                               if(index.size()<=1){
+                                   if(index.size()!=0){
+                                    z = (int)index.get(0);
+                                    zlen = (int) length.get(0);
+                                    index.remove(0);
+                                    length.remove(0);                                        
+                                        merge(y, ylen, z , zlen);
+                                        stackLen.pollFirst();
+                                        stackIndex.pollFirst();
+                                        stackLen.add(ylen+zlen);
+                                        stackIndex.add(y);
+                                        end = true;
+                                       
+                                   }else{
+                                       System.arraycopy(array, y, array, y, ylen);
+                                   }
+                                    isMerge = true;
+                               }else{
+                                    z =(int)index.get(0);
+                                    zlen = (int)length.get(0);
+                                    index.remove(0);
+                                    length.remove(0);
+                               }
+                            }
+                       } stackLen.push(xlen);
+                                stackIndex.push(x);   
+                                if(end){
+                                    return;
+                                }
                    }
                 }
             }
          } else{ 
              if(stackLen.size()>1){ merge(stackIndex.pollFirst(), stackLen.pollFirst(), stackIndex.pollFirst(), stackLen.pollFirst());} 
              else{
-                 int x = stackIndex.pollFirst() ;
-                 System.arraycopy(array, x, array,x , stackLen.pollFirst());
+                int x = stackIndex.pollFirst() ;
+                int y =stackLen.pollFirst();
+                 merge(0,array.length-y,x,y);
              }
          }
      }
      
      public void merge(int index, int length, int index1, int length1){
-        // System.out.println(index);
-        int[] x = Arrays.copyOfRange(array, index,index + length);
-        int number = 0;
-        int number1 = 0;
-        int ind =index;
-        int b = 0;
-        int c= index1;
-//          for(Object mas: stackIndex.toArray() ){
-//             System.out.print("bef"+mas+" ");
-//         }
-//         
-//         System.out.println("");
+         int[] sortAr = new int[length1+length];
+            int[] x ;
+            int number = 0;
+            int number1 = 0;
+            int b = 0;
+            int c;
+            int cSize;
+            int bSize;
+            int bStart;
+            
+        if(length<=length1){ 
+            x = Arrays.copyOfRange(array, index,index + length);
+             c= index1;
+             cSize = index1+length1;
+             bSize = length;
+             bStart = index;
+        }else{
+             x = Arrays.copyOfRange(array, index1,index1 + length1);
+             c= index;
+             cSize = index+length;
+             bSize = length1;
+             bStart = index1;
+        }
          for(int i = 0 ; i<length+length1; i++){
-            if(b<x.length && c<index1+length1){
+            if(b<x.length && c<cSize){
                 if(x[b]>array[c]){
-                    array[ind++] = array[c++];
+                    sortAr[i] = array[c++];
                     number++;
                 }else{
-                    array[ind++] = x[b++];
+                    sortAr[i] = x[b++];
                     number1++;
                 }
             }else{
-              //  System.out.println(index+ "i"+i+" "+ (length1+length));
-                array[ind++] = c < index1+length1? array[c++] : x[b++];  
+                sortAr[i] = c < cSize? array[c++] : x[b++];  
             }
             if(number-number1>6){
-                int z = binarysearch(c, index1-c, x[b]);
-                System.arraycopy(array, c, array, ind, z-c);
+                int z = binarysearch(c, cSize-c, x[b]);
+                System.arraycopy(array, c, sortAr, i, z-c);
                 number = 0;
                 number1=0;
                 i= i+(z-c);
-                ind=ind+z-c;
+                c = z;
             } else{
                 if(number1-number>6){
-                    int z = binarysearch(b+index, length-b, array[c]);
-                    System.arraycopy(x, b, array, ind, z-index-b);
+                    int z = binarysearch(b+bStart, bSize-b, array[c]);
+                    System.arraycopy(x, b, sortAr, i, z-bStart-b);
                     number = 0;
                     number1=0;
-                    i += (z-index-b);
-                    ind = ind + z - index -b;
-                    b+=z-index-b;
+                    i += (z-bStart-b);
+                    b=z-bStart;
                 }
             }
         }
-         stackLen.push(length1+length);
-         stackIndex.push(index);
+         if((length1+length)!=array.length){
+            stackLen.push(length1+length);
+            stackIndex.push(index);
+         }
 //         for(Object mas: stackIndex.toArray() ){
 //             System.out.print(mas+" ");
 //         }
@@ -207,15 +282,18 @@ public class Timsort {
 //             System.out.print(mas+" ");
 //         }
 //         System.out.println("");
+       //  System.out.println(Arrays.toString(array));
+    //     System.out.println("sort"+Arrays.toString(sortAr));
+     //  System.arraycopy(sortAr, 0, array, index, length+length1);
      }
      
      public int binarysearch(int first, int length, int max){
-         if(array[first] == max || length<2){
+         if(array[first] == max || length<1){
              return first;
          }
          int middle = first + length/2;
          if(array[middle]<max){
-             return binarysearch(middle-1, length/2, max);
+             return binarysearch(middle, length/2, max);
          }else{
              return binarysearch(first, length/2 , max);
          }
@@ -235,7 +313,7 @@ public class Timsort {
 //            long st = System.currentTimeMillis();
             int[] z = new int[1000000];
         for(int j =0 ; j<z.length;j++){
-             z[j] = (int)(Math.random()*10000);
+             z[j] = (int)(Math.random()*10);
          }
     //   Arrays.sort(z);
            Timsort tms = new Timsort(z);
