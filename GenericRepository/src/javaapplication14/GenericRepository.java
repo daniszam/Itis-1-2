@@ -13,6 +13,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,7 +70,6 @@ public class GenericRepository<T> {
             String str;
             str = reader.readLine();
             String[] atributs = str.split(",");
-//            Object[] obj = new Object[]{atributs[0], Integer.parseInt(atributs[1])};
             int count = 0;
             int max =0;
             Constructor[] constructors = myclass.getDeclaredConstructors();
@@ -80,25 +81,48 @@ public class GenericRepository<T> {
             Class[] param = constructor.getParameterTypes();
             Object[] obj = new Object[param.length];
             System.out.println(param[0].getName());
+            Pattern numbers = Pattern.compile("^(0-9)[0-9]+");
+            Matcher matcher ;
             for(int i = 0; i<param.length; i++){
-                if(param[i].getName().equals(Integer.class.getName())){
-                    obj[i] = Integer.parseInt(atributs[i]);
+                matcher = numbers.matcher(atributs[i]);
+                if((param[i].getName().equals(Integer.class.getName()))){
+                    if(matcher.find()){
+                        obj[i] = Integer.parseInt(atributs[i]);
+                    }else{
+                        obj[i] = 0;
+                    }
+                     continue;
+                }
+                if((param[i].getName().equals(Double.class.getName()))){
+                    if(matcher.find()){
+                        obj[i] = Double.parseDouble(atributs[i]);
+                    }else{
+                        obj[i] = 0.0;
+                    }
                     continue;
                 }
-                if(param[i].getName().equals(Double.class.getName())){
-                    obj[i] = Double.parseDouble(atributs[i]);
+                if((param[i].getName().equals(Long.class.getName()))){
+                    if(matcher.find()){
+                        obj[i] = Long.parseLong(atributs[i]);
+                    }else{
+                        obj[i] = 0;
+                    }
                     continue;
                 }
-                if(param[i].getName().equals(Long.class.getName())){
-                    obj[i] = Long.parseLong(atributs[i]);
+                if((param[i].getName().equals(Short.class.getName()))){
+                    if(matcher.find()){
+                        obj[i] = Short.parseShort(atributs[i]);
+                    }else{
+                        obj[i] = 0; 
+                    }
                     continue;
                 }
-                if(param[i].getName().equals(Short.class.getName())){
-                    obj[i] = Short.parseShort(atributs[i]);
-                    continue;
-                }
-                if(param[i].getName().equals(Byte.class.getName())){
-                    obj[i] = Byte.parseByte(atributs[i]);
+                if((param[i].getName().equals(Byte.class.getName()))){
+                    if(matcher.find()){
+                        obj[i] = Byte.parseByte(atributs[i]);
+                    }else{
+                        obj[i] = 0; 
+                    }
                     continue;
                 }
                 if(param[i].getName().equals(Boolean.class.getName())){
