@@ -12,15 +12,15 @@ import java.util.logging.Logger;
  * @author danis_zam
  */
 public class BinaryTree <T extends Comparable<T>> {
-    private Node<T> head;
-    private static final Logger log = Logger.getLogger(BinaryTree.class.getName());
+    protected Node<T> head;
+    protected static final Logger log = Logger.getLogger(BinaryTree.class.getName());
     
     public void add(T value){
       if(this.contains(value)!=null){
           System.out.println("this Node in tree");
           log.info("incorrect node");
       }
-      Node<T> node = new Node<>(null,null,null,value);
+      Node<T> node = new Node<>(null,null,null,value, 1);
       if(head==null){
           head = node;
       }else{
@@ -45,6 +45,7 @@ public class BinaryTree <T extends Comparable<T>> {
            }
        } 
     }
+    
     
     public boolean remove(T value){
        Node<T> removeN = this.contains(value);
@@ -72,8 +73,7 @@ public class BinaryTree <T extends Comparable<T>> {
            }
            minRigth.setLeft(removeN.getLeft());
            minRigth.setRigth(removeN.getRigth());
-           minRigth.setParent(removeN.getParent());
-          // parentN = minRigth;
+           minRigth.setParent(removeN.getParent()); 
            removeN.parent.setLeft(minRigth);
            System.out.println("sdfdf"+parentN.value);
            return true;
@@ -121,17 +121,27 @@ public class BinaryTree <T extends Comparable<T>> {
        return contain;
     }
     
-  private class Node<T extends Comparable<T> > implements Comparable<Node<T>>{
-      private Node left;
-      private Node rigth;
-      private T value;
-      private Node parent;
+  protected class Node<T extends Comparable<T> > implements Comparable<Node<T>>{
+      protected int heigth;
+      protected Node left;
+      protected Node rigth;
+      protected T value;
+      protected Node parent;
 
-    public Node(Node left, Node rigth,Node parent, T value) {
+    public Node(Node left, Node rigth,Node parent, T value, int heigth) {
         this.left = left;
         this.rigth = rigth;
         this.value = value;
         this.parent = parent;
+        this.heigth = heigth;
+    }
+
+    public int getHeigth() {
+        return heigth;
+    }
+
+    public void setHeigth(int heigth) {
+        this.heigth = heigth;
     }
 
     public Node getLeft() {
