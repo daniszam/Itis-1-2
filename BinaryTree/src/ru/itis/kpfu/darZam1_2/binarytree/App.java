@@ -28,8 +28,26 @@ public class App {
         avl.add(3);
         avl.add(4);
         avl.add(5);
+        avl.add(6);
+        avl.add(22);
+        avl.add(15);
+        avl.add(196);
+        avl.add(87);
+        avl.add(45);
+        avl.add(17);
+        avl.add(25);
+        avl.add(23);
+        avl.add(1000);
+        avl.add(14);
+        avl.add(9);
+        avl.add(11);
+        avl.add(201);
+        avl.add(41);
+        avl.add(64);
+        avl.add(19);
+        avl.add(91);
+        System.out.println("parent    "+avl.contains(15).getParent().getValue());
         avl.printTree();
-        avl.remove(3);
     //    avl.printTree();
     }
 }

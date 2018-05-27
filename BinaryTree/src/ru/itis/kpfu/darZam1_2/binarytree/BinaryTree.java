@@ -84,7 +84,7 @@ public class BinaryTree <T extends Comparable<T>> {
         this.printTree(head);
     }
     public void printTree(Node head){
-        System.out.println(head.value);
+        System.out.println(head.value+" heigth"+head.getHeigth());
         if(head.left!=null && head.rigth!=null){
             System.out.println("left="+head.left.value+" "+"rigth="+head.rigth.value);
         }else{
